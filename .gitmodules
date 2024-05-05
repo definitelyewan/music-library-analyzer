@@ -1,0 +1,3 @@
+[submodule "ID3dev"]
+	path = ID3dev
+	url = https://github.com/definitelyewan/id3dev.git
