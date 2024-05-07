@@ -46,6 +46,29 @@ void removeSpecialChars(char *str){
     removeChar(str, '\r');
 }
 
+void specialConsiderations(char *str){
+    
+    if(str == NULL){
+        return;
+
+    }
+
+    if(strlen(str) >= strlen("Tyler, The Creator")){
+        if(strstr(str, "Tyler, The Creator") != NULL){
+            removeChar(str, ',');
+        }
+
+    }
+
+    if(strlen(str) >= strlen("Mandy, Indiana")){
+        if(strstr(str, "Mandy, Indiana") != NULL){
+            removeChar(str, ',');
+        }
+
+    }    
+}
+
+
 int main(int argc, char *argv[]){
 
     if(argc < 2){
@@ -102,7 +125,7 @@ int main(int argc, char *argv[]){
     }
 
     // create a file for a csv
-    csv = fopen("metadata.csv", "w");
+    csv = fopen("build/metadata.csv", "w");
 
     if(csv == NULL){
         printf("[ERROR] : Could not create metadata.csv\n");
@@ -116,7 +139,7 @@ int main(int argc, char *argv[]){
     }
 
 
-    fwrite("ID3v1,ID3v2 ver,Title,Artist,Album Artist,Album,Year,Genre,Track,Composer,Disc,Lyrics,Comment,Pictures\n", sizeof(char), 104, csv);
+    fwrite("ID3v1,ID3v2_ver,Title,Artist,Album Artist,Album,Year,Genre,Track,Composer,Disc,Lyrics,Comment,Pictures\n", sizeof(char), 103, csv);
 
 
     for(size_t i = 0; i < stringCount; i++){
@@ -177,19 +200,41 @@ int main(int argc, char *argv[]){
         }
 
         removeSpecialChars(title);
+
+
+
+        specialConsiderations(artist);
+        replaceChar(artist, ',', '/');
+        replaceChar(artist, '&', '/');
         removeSpecialChars(artist);
+
+
+        
+
+
+        specialConsiderations(albumArtist);
+        replaceChar(albumArtist, ',', '/');
         removeSpecialChars(albumArtist);
+        
+        replaceChar(album, ',', '/');
         removeSpecialChars(album);
+
         removeSpecialChars(year);
 
-        replaceChar(lyrics, ',', '/');
+        replaceChar(genre, ',', '/');
         removeSpecialChars(genre);
+
         removeSpecialChars(track);
+
+        specialConsiderations(composer);
+        replaceChar(composer, ',', '/');
         removeSpecialChars(composer);
         removeSpecialChars(disc);
 
         replaceChar(lyrics, '\n', ' ');
         removeSpecialChars(lyrics);
+
+        replaceChar(comment, ',', '/');
         removeSpecialChars(comment);
 
 

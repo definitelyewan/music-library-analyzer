@@ -99,7 +99,7 @@ if __name__ == "__main__":
         os.mkdir(foldername)
 
 
-    cmake_build(".", "build", ["-DBUILD_SHARED_LIBS=ON", "-DDEDUB_ID3_SYMBOLS=ON"])
+    cmake_build(".", "build", ["-DBUILD_SHARED_LIBS=ON"])
     inform.message("Built C code with CMake")
 
     inform.message("Compiling C code")
@@ -116,7 +116,7 @@ if __name__ == "__main__":
             subprocess.call(["toCSV.exe", "paths.txt"])
             os.chdir("..")
         else:
-            subprocess.call(["valgrind","--leak-check=full", "./build/toCSV", "build/paths.txt"])
+            subprocess.call(["valgrind","./build/toCSV", "build/paths.txt"])
     except OSError as e:
         if e.errno == errno.ENOENT:
             # program was not found
@@ -126,4 +126,17 @@ if __name__ == "__main__":
             # program output
             raise
     inform.message("Generated CSV")
+
+    # inform.message("Creating plots")
+    # try:
+    #     subprocess.call(["Rscript", "mktables.r"])
+    # except OSError as e:
+    #     if e.errno == errno.ENOENT:
+    #         # program was not found
+    #         print(Fore.RED, "[ERROR] : failed to generate plots!")
+    #         quit()
+    #     else:
+    #         # program output
+    #         raise
+
     
