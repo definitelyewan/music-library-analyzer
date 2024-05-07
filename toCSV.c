@@ -65,7 +65,26 @@ void specialConsiderations(char *str){
             removeChar(str, ',');
         }
 
-    }    
+    }
+
+    if(strlen(str) >= strlen("Earth, Wind , Fire")){
+        if(strstr(str, "Earth, Wind , Fire") != NULL){
+            removeChar(str, ',');
+        }
+    }
+
+    if(strlen(str) >= strlen("Earth, Wind & Fire")){
+        if(strstr(str, "Earth, Wind & Fire") != NULL){
+            removeChar(str, ',');
+            removeChar(str, '&');
+        }
+    }
+
+    if(strlen(str) >= strlen("Black Country, New Road")){
+        if(strstr(str, "Black Country, New Road") != NULL){
+            removeChar(str, ',');
+        }
+    } 
 }
 
 
@@ -201,15 +220,10 @@ int main(int argc, char *argv[]){
 
         removeSpecialChars(title);
 
-
-
         specialConsiderations(artist);
         replaceChar(artist, ',', '/');
         replaceChar(artist, '&', '/');
         removeSpecialChars(artist);
-
-
-        
 
 
         specialConsiderations(albumArtist);
