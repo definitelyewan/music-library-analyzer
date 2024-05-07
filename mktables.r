@@ -1,53 +1,67 @@
+#install.packages("ggplot2", repos='http://cran.us.r-project.org')
+library(ggplot2)
 
-ID3v1_contents_pie_graph <- function(data_set) {
-    yes_values <- data_set[grepl("Yes", data_set$ID3v1), ]
-    no_values <- data_set[grepl("No", data_set$ID3v1), ]
+id3v1_version_dist <- function(data_set) {
+  version_1 <- data_set[grepl("Yes", data_set$ID3v1), ]
+  version_2 <- data_set[grepl("2", data_set$ID3v2_ver), ]
+  version_3 <- data_set[grepl("3", data_set$ID3v2_ver), ]
+  version_4 <- data_set[grepl("4", data_set$ID3v2_ver), ]
 
-    labels <- c("Contains ID3v1", "No ID3v1")
-    sizes <- c((nrow(yes_values) / nrow(data_set)) * 100, (nrow(no_values) / nrow(data_set)) * 100)
-    sizes <- round(sizes, 2)
-    colors <- c("blue", "green")
+  df <- data.frame(versions = c("ID3v1", "ID3v2.2", "ID3v2.3", "ID3v2.4"), occurances = c(nrow(version_1), nrow(version_2), nrow(version_3), nrow(version_4)))
 
-    pie(sizes, labels=sizes, col=colors, main="Files with ID3v1 tags")
-    legend("bottom", legend=labels, fill=colors, xpd=TRUE, inset=c(0, -0.3))
-}
+  p <- ggplot(data = df, aes(x = versions, y = occurances, color = versions)) +
+              geom_bar(stat = "identity", fill = "white") +
+              geom_text(aes(label = occurances), vjust = 1.6, color = "black", size = 3.5) +
+              theme(legend.position = "none") +
+              ggtitle("ID3 Versions by Occurances")
 
-ID3v2_versions_pie_graph <- function(data_set) {
-    version_2 = data_set[grepl("2", data_set$ID3v2_ver), ]
-    version_3 = data_set[grepl("3", data_set$ID3v2_ver), ]
-    version_4 = data_set[grepl("4", data_set$ID3v2_ver), ]
-
-    labels <- c("Percentage of ID3v2.2", "Percentage of ID3v2.3", "Percentage of ID3v2.4")
-    sizes <- c((nrow(version_2) / nrow(data_set)) * 100, 
-               (nrow(version_3) / nrow(data_set)) * 100,
-               (nrow(version_4) / nrow(data_set)) * 100)
-    sizes <- round(sizes, 2)
-    colors <- c("blue", "green", "red")
-    pie(sizes, labels=sizes, col=colors, main="ID3v2 Version Distribution")
-    legend("bottom", legend=labels, fill=colors, xpd=TRUE, inset=c(0, -0.3))
+  ggsave("output/id3v1_version_dist.png", plot = p, width = 6, height = 4, dpi = 300)
 
 }
 
-artist_count_graph <- function(data_set){
-    
-    artist_counts <- strsplit(data_set$Artist, "/")
-    artist_counts <- unlist(artist_counts)
-    artist_counts <- trimws(artist_counts)
+artist_count <- function(data_set){
 
-    artist_table <- table(artist_counts)
-    pie(artist_table, main="Artist Counts", labels=names(artist_table), col=rainbow(length(artist_table)))
-    #barplot(artist_table, main="Artist Counts", xlab="Artist", ylab="Count", horiz=FALSE, names.arg=names(artist_table), las=1)
+  artist_counts <- strsplit(data_set$Artist, "/")
+  artist_counts <- unlist(artist_counts)
+  artist_counts <- trimws(artist_counts)
+  artist_table <- table(artist_counts)
+  artist_table <- sort(artist_table, decreasing = TRUE)
+
+  df <- data.frame(artists = names(artist_table), counts = as.numeric(artist_table))
+
+  print(df)
+#   data <- data.frame(
+#     group = LETTERS[1:5],
+#     value = c(13,7,9,21,2)
+#   )
+
+#   # Basic piechart
+#   ggplot(data, aes(x="", y = value, fill = group)) +
+#     geom_bar(stat = "identity", width = 1, color = "white") +
+#     coord_polar("y", start = 0) +
+#     theme_void() # remove background, grid, numeric labels
+
+
+    # artist_table <- sort(artist_table, decreasing = TRUE)
+    # other_artists <- sum(artist_table[-(1:30)])
+    # artist_table <- c(artist_table[1:30], Other = other_artists)
+
+    # pie3D(artist_table, main="Percentage of Artist Contributions", col=rainbow(length(artist_table)))
+    # legend("bottom", 
+    #        legend=paste(names(artist_table[1:30]), 
+    #        "(", round(artist_table[1:30]/sum(artist_table)*100, 2), "%)"), 
+    #        fill=rainbow(length(artist_table)),
+    #        horiz = TRUE)
+#     #barplot(artist_table, main="Artist Counts", xlab="Artist", ylab="Count", horiz=FALSE, names.arg=names(artist_table), las=1)
 
 
 }
 
 
 setwd(".")
-par(mfrow = c(2, 2))
-data <- read.csv("build/metadata.csv", header=TRUE, sep=",", quote="")
 
-ID3v1_contents_pie_graph(data)
-ID3v2_versions_pie_graph(data)
-par(mfrow = c(1, 1))
-artist_count_graph(data)
+data <- read.csv("build/metadata.csv", header = TRUE, sep = ",", quote = "")
 
+id3v1_version_dist(data)
+
+artist_count(data)
