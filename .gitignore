@@ -1,4 +1,4 @@
 build
 .vscode
 Rplots.pdf
-output/id3v1_version_dist.png
+.DS_STORE
