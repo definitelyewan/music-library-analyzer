@@ -126,17 +126,4 @@ if __name__ == "__main__":
             # program output
             raise
     inform.message("Generated CSV")
-
-    # inform.message("Creating plots")
-    # try:
-    #     subprocess.call(["Rscript", "mktables.r"])
-    # except OSError as e:
-    #     if e.errno == errno.ENOENT:
-    #         # program was not found
-    #         print(Fore.RED, "[ERROR] : failed to generate plots!")
-    #         quit()
-    #     else:
-    #         # program output
-    #         raise
-
     

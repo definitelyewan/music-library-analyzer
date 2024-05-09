@@ -83,10 +83,19 @@ void specialConsiderations(char *str){
     if(strlen(str) >= strlen("Black Country/ New Road")){
         char *substr = strstr(str, "Black Country/ New Road");
         if(substr != NULL){
-            substr[13] = ' '; // Replace the slash with a space
-            memmove(substr + 14, substr + 15, strlen(substr + 15) + 1); // Shift characters left to cover the space
+            substr[13] = ' ';
+            memmove(substr + 14, substr + 15, strlen(substr + 15) + 1);
         }
-    } 
+    }
+
+    if(strlen(str) >= strlen("R/B")){
+        char *substr = str;
+        while((substr = strstr(substr, "R/B")) != NULL){
+            substr[1] = '&';
+            substr += 2;
+        }
+    }
+
 }
 
 
@@ -165,7 +174,7 @@ int main(int argc, char *argv[]){
 
     for(size_t i = 0; i < stringCount; i++){
 
-        printf("[*] Reading %s for metadata\n", strings[i]);
+        // printf("[*] Reading %s for metadata\n", strings[i]);
 
 
         ID3 *id3 = id3FromFile(strings[i]);
@@ -258,10 +267,37 @@ int main(int argc, char *argv[]){
 
         removeSpecialChars(year);
 
+
+        /**
+         * format:
+         *  (n)
+         * is possible so this will need to be fixed for R
+         * 
+         */
         replaceChar(genre, ',', '/');
         replaceChar(genre, '&', '/');
         specialConsiderations(genre);
         removeSpecialChars(genre);
+
+        if(genre != NULL){
+            if(genre[0] == '(' && genre[strlen(genre) - 1] == ')'){
+                if(genre != NULL){
+                    if(genre[0] == '(' && genre[strlen(genre) - 1] == ')'){
+                        memmove(genre, genre + 1, strlen(genre) - 2);
+                        genre[strlen(genre) - 1] = '\0';
+                        int g = atoi(genre);
+                        printf("[*]->[%d] which is [%s]\n", g,id3v1GenreFromTable(g));
+                        free(genre);
+                        genre = calloc(strlen(id3v1GenreFromTable(g)) + 1, sizeof(char));
+                        strcpy(genre, id3v1GenreFromTable(g));
+
+
+                    }
+                }
+            }
+        }
+
+        printf("[*]->[%s]\n", genre);
 
         removeSpecialChars(track);
 
