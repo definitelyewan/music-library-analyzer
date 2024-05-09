@@ -160,7 +160,7 @@ int main(int argc, char *argv[]){
     }
 
 
-    fwrite("ID3v1,ID3v2_ver,Title,Artist,Album Artist,Album,Year,Genre,Track,Composer,Disc,Lyrics,Comment,Pictures\n", sizeof(char), 103, csv);
+    fwrite("ID3v1,ID3v2_ver,Title,Artist,Album_Artist,Album,Year,Genre,Track,Composer,Disc,Lyrics,Comment,Pictures\n", sizeof(char), 103, csv);
 
 
     for(size_t i = 0; i < stringCount; i++){
@@ -239,35 +239,37 @@ int main(int argc, char *argv[]){
             }
             specialConsiderations(title);
             removeSpecialChars(title);
-
-            // printf("[*]->[%s]\n", title);
         }
 
-        
+
         replaceChar(artist, ',', '/');
         replaceChar(artist, '&', '/');
         specialConsiderations(artist);
         removeSpecialChars(artist);
-        printf("[*]->[%s]\n", artist);
 
 
-        specialConsiderations(albumArtist);
         replaceChar(albumArtist, ',', '/');
+        replaceChar(artist, '&', '/');
+        specialConsiderations(albumArtist);
         removeSpecialChars(albumArtist);
-        
-        replaceChar(album, ',', '/');
+
+
         removeSpecialChars(album);
 
         removeSpecialChars(year);
 
         replaceChar(genre, ',', '/');
+        replaceChar(genre, '&', '/');
+        specialConsiderations(genre);
         removeSpecialChars(genre);
 
         removeSpecialChars(track);
 
-        specialConsiderations(composer);
         replaceChar(composer, ',', '/');
+        replaceChar(composer, ',', '&');
+        specialConsiderations(composer);
         removeSpecialChars(composer);
+        
         removeSpecialChars(disc);
 
         replaceChar(lyrics, '\n', ' ');
