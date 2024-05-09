@@ -20,11 +20,9 @@ artist_counts <- c(artist_counts, feat_titles)
 artist_table <- table(artist_counts)
 artist_table <- sort(artist_table, decreasing = TRUE)
 
-print(artist_table)
-
 total_counts <- length(artist_table)
 percentages <- (as.numeric(artist_table) / total_counts) * 100
-df <- data.frame(artists = names(artist_table), percentage = round(percentages, 2), counts = as.numeric(artist_table))
+df <- data.frame(artists = names(artist_table), percentage = round(percentages, 2), frequency = as.numeric(artist_table))
 
 print("What artist contributed the most to your library?")
 print(df)
