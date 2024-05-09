@@ -53,36 +53,38 @@ void specialConsiderations(char *str){
 
     }
 
-    if(strlen(str) >= strlen("Tyler, The Creator")){
-        if(strstr(str, "Tyler, The Creator") != NULL){
-            removeChar(str, ',');
+    if(strlen(str) >= strlen("Tyler/ The Creator")){
+        char *substr = strstr(str, "Tyler/ The Creator");
+        if(substr != NULL){
+            memmove(substr + 5, substr + 6, strlen(substr + 6) + 1);
         }
-
     }
 
-    if(strlen(str) >= strlen("Mandy, Indiana")){
-        if(strstr(str, "Mandy, Indiana") != NULL){
-            removeChar(str, ',');
+    if(strlen(str) >= strlen("Mandy/ Indiana")){
+        char *substr = strstr(str, "Mandy/ Indiana");
+        if(substr != NULL){
+            memmove(substr + 5, substr + 6, strlen(substr + 6) + 1); // Shift characters left by one
         }
 
     }
 
     if(strlen(str) >= strlen("Earth, Wind , Fire")){
-        if(strstr(str, "Earth, Wind , Fire") != NULL){
-            removeChar(str, ',');
+        char *substr = strstr(str, "Earth/ Wind / Fire");
+        if(substr != NULL){
+            for(int i = 0; substr[i] != '\0'; i++){
+                if(substr[i] == '/'){
+                    memmove(substr + i, substr + i + 1, strlen(substr + i));
+                    i--;
+                }
+            }
         }
     }
 
-    if(strlen(str) >= strlen("Earth, Wind & Fire")){
-        if(strstr(str, "Earth, Wind & Fire") != NULL){
-            removeChar(str, ',');
-            removeChar(str, '&');
-        }
-    }
-
-    if(strlen(str) >= strlen("Black Country, New Road")){
-        if(strstr(str, "Black Country, New Road") != NULL){
-            removeChar(str, ',');
+    if(strlen(str) >= strlen("Black Country/ New Road")){
+        char *substr = strstr(str, "Black Country/ New Road");
+        if(substr != NULL){
+            substr[13] = ' '; // Replace the slash with a space
+            memmove(substr + 14, substr + 15, strlen(substr + 15) + 1); // Shift characters left to cover the space
         }
     } 
 }
@@ -163,7 +165,7 @@ int main(int argc, char *argv[]){
 
     for(size_t i = 0; i < stringCount; i++){
 
-        printf("[*] Reading %s for metadata\n", strings[i]);
+        // printf("[*] Reading %s for metadata\n", strings[i]);
 
 
         ID3 *id3 = id3FromFile(strings[i]);
@@ -218,12 +220,35 @@ int main(int argc, char *argv[]){
             }
         }
 
-        removeSpecialChars(title);
+        /**
+         * the format: 
+         * snog name (ft. name, name2 & name 3)
+         *           ^ issue!
+         * is possible so , and & are going to be linted to help me out later with R.
+         */
 
-        specialConsiderations(artist);
+        if(title != NULL){
+            for(int j = 0; j < strlen(title); j++){
+                if(title[j] == '(' || title[j] == '['){
+                    replaceChar(title + j, ',', '/');
+                    replaceChar(title + j, '&', '/');
+                    specialConsiderations(title + j);
+                    break;
+                }
+
+            }
+            specialConsiderations(title);
+            removeSpecialChars(title);
+
+            // printf("[*]->[%s]\n", title);
+        }
+
+        
         replaceChar(artist, ',', '/');
         replaceChar(artist, '&', '/');
+        specialConsiderations(artist);
         removeSpecialChars(artist);
+        printf("[*]->[%s]\n", artist);
 
 
         specialConsiderations(albumArtist);
