@@ -165,7 +165,7 @@ int main(int argc, char *argv[]){
 
     for(size_t i = 0; i < stringCount; i++){
 
-        // printf("[*] Reading %s for metadata\n", strings[i]);
+        printf("[*] Reading %s for metadata\n", strings[i]);
 
 
         ID3 *id3 = id3FromFile(strings[i]);
