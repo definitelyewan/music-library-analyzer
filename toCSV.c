@@ -174,7 +174,7 @@ int main(int argc, char *argv[]){
 
     for(size_t i = 0; i < stringCount; i++){
 
-        // printf("[*] Reading %s for metadata\n", strings[i]);
+        printf("[*] Reading %s for metadata\n", strings[i]);
 
 
         ID3 *id3 = id3FromFile(strings[i]);
@@ -286,7 +286,6 @@ int main(int argc, char *argv[]){
                         memmove(genre, genre + 1, strlen(genre) - 2);
                         genre[strlen(genre) - 1] = '\0';
                         int g = atoi(genre);
-                        printf("[*]->[%d] which is [%s]\n", g,id3v1GenreFromTable(g));
                         free(genre);
                         genre = calloc(strlen(id3v1GenreFromTable(g)) + 1, sizeof(char));
                         strcpy(genre, id3v1GenreFromTable(g));
@@ -296,8 +295,6 @@ int main(int argc, char *argv[]){
                 }
             }
         }
-
-        printf("[*]->[%s]\n", genre);
 
         removeSpecialChars(track);
 

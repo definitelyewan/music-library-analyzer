@@ -1,7 +1,9 @@
 args <- commandArgs(trailingOnly = TRUE)
 options("width" = 201)
 
-if (length(args) == 0) {
+print(args)
+
+if (length(args) < 1) {
   print("Please provide an artist")
   quit()
 }
@@ -9,7 +11,7 @@ if (length(args) == 0) {
 search_artist <- tolower(args[1])
 search_artist <- gsub(",", "", search_artist)
 
-data_set <- read.csv("build/metadata.csv", header = TRUE, sep = ",", quote = "")
+data_set <- read.csv(args[2], header = TRUE, sep = ",", quote = "")
 data_set[sapply(data_set, is.character)] <- lapply(data_set[sapply(data_set, is.character)], tolower)
 data_set <- data_set[apply(data_set, 1, function(x) any(grepl(search_artist, x))), ]
 
@@ -21,7 +23,6 @@ album_df <- data.frame(album = names(album_table), songs = as.numeric(album_tabl
 print(paste0("Contributed to ",nrow(album_df), " projects between ", min(data_set$Year), " - ", max(data_set$Year)))
 
 print(album_df)
-
 
 print(paste0("Total songs: ", sum(as.numeric(album_df$songs))))
 
