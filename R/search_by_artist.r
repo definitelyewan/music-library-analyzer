@@ -1,8 +1,6 @@
 args <- commandArgs(trailingOnly = TRUE)
 options("width" = 201)
 
-print(args)
-
 if (length(args) < 1) {
   print("Please provide an artist")
   quit()
@@ -15,20 +13,20 @@ data_set <- read.csv(args[2], header = TRUE, sep = ",", quote = "")
 data_set[sapply(data_set, is.character)] <- lapply(data_set[sapply(data_set, is.character)], tolower)
 data_set <- data_set[apply(data_set, 1, function(x) any(grepl(search_artist, x))), ]
 
-print(paste0("Search query: ", search_artist))
+cat("Search query: ", search_artist, "\n")
 
 # contributed works
 album_table <- table(data_set$Album)
 album_df <- data.frame(album = names(album_table), songs = as.numeric(album_table))
-print(paste0("Contributed to ",nrow(album_df), " projects between ", min(data_set$Year), " - ", max(data_set$Year)))
+cat("Contributed to ", nrow(album_df), " projects between ", min(data_set$Year), " - ", max(data_set$Year), "\n")
 
-print(album_df)
+write.table(album_df$album, row.names = FALSE, col.names = FALSE)
 
-print(paste0("Total songs: ", sum(as.numeric(album_df$songs))))
 
+cat("Total songs: ", sum(as.numeric(album_df$songs)), "\n")
 title_df <- data.frame(title = gsub("/", ",",data_set$Title), from_album = data_set$Album, year = data_set$Year)
-print(title_df)
-
+#print(title_df)
+write.table(title_df, row.names = FALSE, col.names = FALSE, sep = "|")
 
 #attributed genres
 
@@ -76,7 +74,7 @@ genres <- tolower(genres)
 genre_table <- table(genres)
 genre_table <- sort(genre_table, decreasing = TRUE)
 
-print(paste0("Works in ", length(genre_table), " genres :"))
+cat("Works in ", length(genre_table), " genres :\n")
 df <- data.frame(genres = names(genre_table), songs = as.numeric(genre_table))
 print(df)
 

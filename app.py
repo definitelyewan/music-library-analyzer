@@ -8,6 +8,7 @@ from tkinter.filedialog import askdirectory
 from sys import platform
 import queue
 import threading
+import re
 
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -53,19 +54,19 @@ class App(customtkinter.CTk):
         self.csv_textbox.pack(fill="both", padx=(20, 0), pady=(10, 0))
 
         # artist search
-        self.artist_query_label = customtkinter.CTkLabel(self.scrollable_frame, text="Query Artists", bg_color="transparent", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.artist_query_label = customtkinter.CTkLabel(self.scrollable_frame, text="Query Data Set", bg_color="transparent", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.artist_query_label.pack(padx=20, pady=(20, 5))
-        self.artist_query_label = customtkinter.CTkLabel(self.scrollable_frame, text="Query an artist to see their contributions to your music library", bg_color="transparent", font=customtkinter.CTkFont(size=15))
+        self.artist_query_label = customtkinter.CTkLabel(self.scrollable_frame, text="Query an artist to see their contributions to your music library or select any of the other options for more insite.", bg_color="transparent", font=customtkinter.CTkFont(size=15))
         self.artist_query_label.pack(padx=20, pady=(5, 5))
 
-        self.artist_entry_box = customtkinter.CTkEntry(self.scrollable_frame, placeholder_text="Enter artist name")
-        self.artist_entry_box.pack(fill="both", padx=(20, 0), pady=(10, 0))
+        self.artist_entry_box = customtkinter.CTkEntry(self.scrollable_frame, placeholder_text="Enter Artist Name")
+        self.artist_entry_box.pack(side="left", padx=(2, 0), pady=(10, 0))
 
-        self.q_button = customtkinter.CTkButton(self.scrollable_frame, text="Print Entry", command=lambda:self.query_artist())
-        self.q_button.pack(fill="both", padx=(20, 0), pady=(10, 0))
+        self.q_button = customtkinter.CTkButton(self.scrollable_frame, text="Query Artist", command=lambda:self.query_artist())
+        self.q_button.pack(side="left", padx=(5, 0), pady=(10, 0))
 
-        self.artist_textbox = customtkinter.CTkTextbox(self.scrollable_frame, width=250, state="disabled")
-        self.artist_textbox.pack(fill="both", padx=(20, 0), pady=(10, 0))
+        self.artist_textbox = customtkinter.CTkTextbox(self.scrollable_frame, width=750, state="disabled")
+        self.artist_textbox.pack(side="right", padx=(5, 0), pady=(10, 0))
 
     def upload_csv(self):
         self.file_path = filedialog.askopenfilename()
@@ -119,11 +120,28 @@ class App(customtkinter.CTk):
             self.update_textbox()
     
     def query_artist(self):
-        process = subprocess.Popen(["Rscript", "R/search_by_artist.r", f"{self.artist_entry_box.get()}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(["Rscript", "R/search_by_artist.r", f"{self.artist_entry_box.get()}", self.file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
+
+
+        quary_output = output.decode().splitlines()
+
         self.artist_textbox.configure(state='normal')
-        self.artist_textbox.insert("end", f"{output.decode()}")
-        self.artist_textbox.see('end')
+        self.artist_textbox.delete(1.0, "end")
+
+        # print first 3 lines
+        self.artist_textbox.insert("end", f"{quary_output[0]}\n")
+        self.artist_textbox.insert("end", f"{quary_output[1]}\n")
+
+        n_albums = re.findall(r'[0-9]+', quary_output[1])[0]
+        
+        line = 2
+
+        for i in range(2, int(n_albums)):
+            self.artist_textbox.insert("end", f"Album {i - 1} : {quary_output[i]}\n")
+            line += 1
+
+        #self.artist_textbox.insert("end", f"{output.decode()}")
         self.artist_textbox.configure(state='disable')
 
     # def __init__(self):
