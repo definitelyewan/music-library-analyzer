@@ -80,7 +80,7 @@ class App(customtkinter.CTk):
         self.unique_album_button = customtkinter.CTkButton(self.scrollable_frame, text="Unique Albums", command=lambda:self.unique_albums())
         self.unique_album_button.pack(fill="both", padx=(5, 0), pady=(10, 0))
 
-        self.artist_textbox = customtkinter.CTkTextbox(self.scrollable_frame, width=750, state="disabled")
+        self.artist_textbox = customtkinter.CTkTextbox(self.scrollable_frame, width=750, height=360, state="disabled")
         self.artist_textbox.pack(fill="both", padx=(5, 0), pady=(10, 0))
 
     def upload_csv(self):
