@@ -1,5 +1,12 @@
-data_set <- read.csv("build/metadata.csv", header = TRUE, sep = ",", quote = "")
 
+args <- commandArgs(trailingOnly = TRUE)
+
+if (length(args) == 0) {
+  print("Please provide an artist")
+  quit()
+}
+
+data_set <- read.csv(args[1], header = TRUE, sep = ",", quote = "")
 genres <- data_set$Genre
 
 genres <- strsplit(genres, "/")
@@ -48,4 +55,4 @@ genre_table <- sort(genre_table, decreasing = TRUE)
 
 df <- data.frame(genres = names(genre_table), frequency = as.numeric(genre_table))
 
-print(df)
+write.table(df, row.names = FALSE, col.names = FALSE, sep = "|")

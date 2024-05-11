@@ -25,7 +25,7 @@ write.table(album_df$album, row.names = FALSE, col.names = FALSE)
 
 cat("Total songs: ", sum(as.numeric(album_df$songs)), "\n")
 title_df <- data.frame(title = gsub("/", ",",data_set$Title), from_album = data_set$Album, year = data_set$Year)
-#print(title_df)
+
 write.table(title_df, row.names = FALSE, col.names = FALSE, sep = "|")
 
 #attributed genres
@@ -74,12 +74,6 @@ genres <- tolower(genres)
 genre_table <- table(genres)
 genre_table <- sort(genre_table, decreasing = TRUE)
 
-cat("Works in ", length(genre_table), " genres :\n")
-df <- data.frame(genres = names(genre_table), songs = as.numeric(genre_table))
-print(df)
-
-max_genre <- max(as.numeric(genre_table))
-genre_name <- names(genre_table)[as.numeric(genre_table) == max_genre]
-
-
-
+cat("Works in ", length(genre_table), " genres\n")
+genre_df <- data.frame(genres = names(genre_table), songs = as.numeric(genre_table))
+write.table(genre_df, row.names = FALSE, col.names = FALSE, sep = "|")

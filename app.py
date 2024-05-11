@@ -60,13 +60,28 @@ class App(customtkinter.CTk):
         self.artist_query_label.pack(padx=20, pady=(5, 5))
 
         self.artist_entry_box = customtkinter.CTkEntry(self.scrollable_frame, placeholder_text="Enter Artist Name")
-        self.artist_entry_box.pack(side="left", padx=(2, 0), pady=(10, 0))
+        self.artist_entry_box.pack(fill="both", padx=(2, 0), pady=(10, 0))
 
         self.q_button = customtkinter.CTkButton(self.scrollable_frame, text="Query Artist", command=lambda:self.query_artist())
-        self.q_button.pack(side="left", padx=(5, 0), pady=(10, 0))
+        self.q_button.pack(fill="both", padx=(5, 0), pady=(10, 0))
+
+        self.list_comp_button = customtkinter.CTkButton(self.scrollable_frame, text="List Artist Contributions", command=lambda:self.query_artist_comp())
+        self.list_comp_button.pack(fill="both", padx=(5, 0), pady=(10, 0))
+
+        self.id3ver_button = customtkinter.CTkButton(self.scrollable_frame, text="ID3 Versions", command=lambda:self.id3_versions())
+        self.id3ver_button.pack(fill="both", padx=(5, 0), pady=(10, 0))
+
+        self.songs_year_button = customtkinter.CTkButton(self.scrollable_frame, text="Year Percent", command=lambda:self.songs_by_year())
+        self.songs_year_button.pack(fill="both", padx=(5, 0), pady=(10, 0))
+
+        self.genre_button = customtkinter.CTkButton(self.scrollable_frame, text="Unique Genre", command=lambda:self.songs_by_genre())
+        self.genre_button.pack(fill="both", padx=(5, 0), pady=(10, 0))
+
+        self.unique_album_button = customtkinter.CTkButton(self.scrollable_frame, text="Unique Albums", command=lambda:self.unique_albums())
+        self.unique_album_button.pack(fill="both", padx=(5, 0), pady=(10, 0))
 
         self.artist_textbox = customtkinter.CTkTextbox(self.scrollable_frame, width=750, state="disabled")
-        self.artist_textbox.pack(side="right", padx=(5, 0), pady=(10, 0))
+        self.artist_textbox.pack(fill="both", padx=(5, 0), pady=(10, 0))
 
     def upload_csv(self):
         self.file_path = filedialog.askopenfilename()
@@ -123,26 +138,124 @@ class App(customtkinter.CTk):
         process = subprocess.Popen(["Rscript", "R/search_by_artist.r", f"{self.artist_entry_box.get()}", self.file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
 
+        self.artist_textbox.configure(state='normal')
+        self.artist_textbox.delete(1.0, "end")
 
-        quary_output = output.decode().splitlines()
+        quary_output = output.decode('utf-8').splitlines()
+
+        queue = []
+        for item in quary_output:
+            queue.append(item)
+        queue.reverse()
+
+        self.artist_textbox.insert("end", f"{queue.pop()}\n")
+
+        n_albums_line = queue.pop()
+        n_albums = re.findall(r'[0-9]+', n_albums_line)[0]
+
+        self.artist_textbox.insert("end", f"{n_albums_line}\n")
+
+        for i in range(0, int(n_albums)):
+            album = queue.pop()
+            self.artist_textbox.insert("end", f"\tProject {i + 1} : {album[1:-1]}\n")
+
+        n_songs_line = queue.pop()
+        n_songs = re.findall(r'[0-9]+', n_songs_line)[0]
+
+        self.artist_textbox.insert("end", f"{n_songs_line}:\n")
+
+        for i in range(0, int(n_songs)):
+            line = queue.pop()
+            line_parts = line.split("|")
+
+            self.artist_textbox.insert("end", f"\t{line_parts[0][1:-1]}, from {line_parts[1][1:-1]} ({line_parts[2]})\n")
+
+        n_genre_line = queue.pop()
+        n_genre = re.findall(r'[0-9]+', n_genre_line)[0]
+
+        self.artist_textbox.insert("end", f"{n_genre_line}:\n")
+
+        for i in range(0, int(n_genre)):
+            line = queue.pop()
+            line_parts = line.split("|")
+            self.artist_textbox.insert("end", f"\t{line_parts[1]} songs tagged as {line_parts[0]}\n")
+        
+        self.artist_textbox.configure(state='disable')
+
+    def query_artist_comp(self):
+        process = subprocess.Popen(["Rscript", "R/artist_count.r", self.file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
 
         self.artist_textbox.configure(state='normal')
         self.artist_textbox.delete(1.0, "end")
 
-        # print first 3 lines
-        self.artist_textbox.insert("end", f"{quary_output[0]}\n")
-        self.artist_textbox.insert("end", f"{quary_output[1]}\n")
+        quary_output = output.decode('utf-8').splitlines()
 
-        n_albums = re.findall(r'[0-9]+', quary_output[1])[0]
+        for item in quary_output:
+            parts = item.split("|")
+            self.artist_textbox.insert("end", f"{parts[0][1:-1]} makes up {parts[1]}% of the library with {parts[2]} songs\n")
         
-        line = 2
+        self.artist_textbox.configure(state='disable')    
 
-        for i in range(2, int(n_albums)):
-            self.artist_textbox.insert("end", f"Album {i - 1} : {quary_output[i]}\n")
-            line += 1
+    def id3_versions(self):
+        process = subprocess.Popen(["Rscript", "R/id3_version_dist.r", self.file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
 
-        #self.artist_textbox.insert("end", f"{output.decode()}")
-        self.artist_textbox.configure(state='disable')
+        self.artist_textbox.configure(state='normal')
+        self.artist_textbox.delete(1.0, "end")
+
+        quary_output = output.decode('utf-8').splitlines()
+
+        for item in quary_output:
+            parts = item.split("|")
+            self.artist_textbox.insert("end", f"{parts[0][1:-1]} exists in {parts[1]} files\n")
+        
+        self.artist_textbox.configure(state='disable')            
+
+    def songs_by_year(self):
+        process = subprocess.Popen(["Rscript", "R/songs_by_year.r", self.file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
+
+        self.artist_textbox.configure(state='normal')
+        self.artist_textbox.delete(1.0, "end")
+
+        quary_output = output.decode('utf-8').splitlines()
+
+        for item in quary_output:
+            parts = item.split("|")
+            self.artist_textbox.insert("end", f"{parts[0]} appears {parts[1]} times making this year {parts[2]}%\n")
+        
+        self.artist_textbox.configure(state='disable')    
+
+    def songs_by_genre(self):
+        process = subprocess.Popen(["Rscript", "R/sub_genre_count.r", self.file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
+
+        self.artist_textbox.configure(state='normal')
+        self.artist_textbox.delete(1.0, "end")
+
+        quary_output = output.decode('utf-8').splitlines()
+
+        for item in quary_output:
+            parts = item.split("|")
+            self.artist_textbox.insert("end", f"{parts[1]} {parts[0][1:-1]} songs\n")
+        
+        self.artist_textbox.configure(state='disable')   
+
+    def unique_albums(self):
+        process = subprocess.Popen(["Rscript", "R/unique_albums.r", self.file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
+
+        self.artist_textbox.configure(state='normal')
+        self.artist_textbox.delete(1.0, "end")
+
+        quary_output = output.decode('utf-8').splitlines()
+
+        for item in quary_output:
+            parts = item.split("|")
+            self.artist_textbox.insert("end", f"{parts[1]} by {parts[0]}\n")
+        
+        self.artist_textbox.configure(state='disable')   
 
     # def __init__(self):
     #     super().__init__()
